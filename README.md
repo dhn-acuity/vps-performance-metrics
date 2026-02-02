@@ -53,6 +53,10 @@ AWS EC2 (load generator) ───HTTP───▶ VPS (metrics service)
    
    Terminal 2 - App health (every 2s):
    ```bash
+   # Option A: View monitor service logs (easiest with docker-compose)
+   docker compose logs -f monitor
+   
+   # Option B: Manual watch command
    watch -n 2 "curl -s http://127.0.0.1:3000/metrics | jq '.eventLoop, .latency, .network'"
    ```
 
@@ -191,13 +195,19 @@ docker run -p 3000:3000 -v /proc:/proc:ro hono-metrics
 
 ### Run with Docker Compose:
 ```bash
-# Build and start the service
+# Build and start the service (includes monitoring)
 docker compose up -d
 
-# View logs
+# View metrics service logs
+docker compose logs -f metrics
+
+# View live monitoring (recommended during load tests)
+docker compose logs -f monitor
+
+# View all logs
 docker compose logs -f
 
-# Stop the service
+# Stop all services
 docker compose down
 
 # Rebuild and restart
@@ -205,10 +215,11 @@ docker compose up -d --build
 ```
 
 Note: The [docker-compose.yml](docker-compose.yml) file includes:
+- **Main service** (`metrics`): The Hono.js performance metrics API
+- **Monitor service** (`monitor`): Continuously polls `/metrics` every 2 seconds and displays results
 - Automatic restart policy (`unless-stopped`)
-- `/proc` volume mount for network metrics (Linux only)
-- Optional resource limits (commented out by default)
 - Production environment variables
+- Optional resource limits (commented out by default)
 
 ## Files
 
