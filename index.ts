@@ -54,21 +54,70 @@ function getELU() {
  * CPU + Memory
  * =========================
  */
-function getCpuUsage() {
-  const cpus = os.cpus();
-  let idle = 0;
-  let total = 0;
+type ProcessCpuSnapshot = {
+  user: number; // microseconds
+  system: number; // microseconds
+  time: number; // timestamp in ms
+};
 
-  for (const cpu of cpus) {
-    for (const type in cpu.times) {
-      total += cpu.times[type as keyof typeof cpu.times];
-    }
-    idle += cpu.times.idle;
+function takeProcessCpuSnapshot(): ProcessCpuSnapshot {
+  const usage = process.cpuUsage();
+  return {
+    user: usage.user,
+    system: usage.system,
+    time: Date.now(),
+  };
+}
+
+let lastProcessCpu = takeProcessCpuSnapshot();
+
+function getCpuUsage() {
+  const current = takeProcessCpuSnapshot();
+  const cpus = os.cpus();
+
+  // Calculate elapsed wall-clock time in microseconds
+  const elapsedMs = current.time - lastProcessCpu.time;
+  const elapsedUs = elapsedMs * 1000;
+
+  // Calculate CPU time used by process (user + system) in microseconds
+  const userDelta = current.user - lastProcessCpu.user;
+  const systemDelta = current.system - lastProcessCpu.system;
+  const cpuTimeUs = userDelta + systemDelta;
+
+  // Update for next call
+  lastProcessCpu = current;
+
+  // Avoid division by zero
+  if (elapsedUs === 0) {
+    return {
+      cores: cpus.length,
+      processUsagePercent: 0,
+      systemUsagePercent: 0,
+    };
   }
+
+  // Process CPU % = (cpu_time / elapsed_time) * 100
+  // This can exceed 100% on multi-core systems (e.g., 200% = using 2 cores fully)
+  const processUsagePercent = Number(((cpuTimeUs / elapsedUs) * 100).toFixed(2));
+
+  // Get system-wide CPU for reference
+  const sysCpus = os.cpus();
+  let sysIdle = 0;
+  let sysTotal = 0;
+  for (const cpu of sysCpus) {
+    for (const type in cpu.times) {
+      sysTotal += cpu.times[type as keyof typeof cpu.times];
+    }
+    sysIdle += cpu.times.idle;
+  }
+  const systemUsagePercent = Number(
+    (((sysTotal - sysIdle) / sysTotal) * 100).toFixed(2)
+  );
 
   return {
     cores: cpus.length,
-    usagePercent: Number((((total - idle) / total) * 100).toFixed(2)),
+    processUsagePercent,
+    systemUsagePercent,
   };
 }
 
@@ -268,9 +317,16 @@ app.get("/health", (c) => c.text("ok"));
 
 app.get("/metrics", (c) => {
   const elu = getELU();
+  const cpu = getCpuUsage();
 
   return c.json({
-    cpu: getCpuUsage(),
+    cpu: {
+      cores: cpu.cores,
+      // Process CPU can exceed 100% on multi-core (e.g., 150% = 1.5 cores used)
+      processUsagePercent: cpu.processUsagePercent,
+      // System-wide CPU across all cores
+      systemUsagePercent: cpu.systemUsagePercent,
+    },
     memory: getMemoryUsage(),
 
     eventLoop: {
