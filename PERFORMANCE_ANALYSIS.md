@@ -15,10 +15,11 @@ After conducting 4 comprehensive performance tests (2 from EC2, 2 from local mac
 | Metric | Winner | Average Advantage |
 |--------|--------|-------------------|
 | **Maximum Throughput (RPS)** | OVH | +3.6% |
-| **CPU Efficiency** | Contabo | 76-88% lower CPU usage |
 | **Response Time (Latency)** | OVH | 16-33% faster P95 latency |
 | **Event Loop Health** | OVH | 17-26% lower ELU |
-| **Memory Efficiency** | Contabo | ~1% lower usage |
+| **Consistency** | Contabo | Lower throughput variance |
+
+**Note:** CPU usage data is unreliable as metrics were captured after load tests completed, not during active load. Both VPS showed ~100% CPU utilization during actual testing.
 
 ---
 
@@ -241,21 +242,26 @@ Lower is better - indicates faster event loop iterations
 
 ---
 
-## 5. Cost-Performance Analysis
+## 4. Performance Consistency Analysis
 
-### 5.1 Throughput per CPU %
+### 4.1 Coefficient of Variation (Lower = More Consistent)
 
-| Test | Contabo RPS/CPU% | OVH RPS/CPU% | Winner |
-|------|------------------|--------------|--------|
-| EC2 R1 | 2,275 | 159 | 🏆 Contabo (14.3x) |
-| EC2 R2 | 1,857 | 138 | 🏆 Contabo (13.5x) |
-| Local R1 | 1,995 | 141 | 🏆 Contabo (14.1x) |
-| Local R2 | 1,618 | 116 | 🏆 Contabo (13.9x) |
-| **Average** | **1,936** | **139** | **🏆 Contabo (13.9x)** |
+| Metric | Contabo CV | OVH CV | More Consistent |
+|--------|------------|--------|-----------------|
+| Max RPS | 3.3% | 5.4% | 🏆 Contabo |
+| ELU | 2.4% | 4.4% | 🏆 Contabo |
+| P95 Latency | 9.1% | 0% | 🏆 OVH |
 
-**Critical Business Insight:** Contabo delivers **13.9x more requests per unit of CPU usage**. If pricing is similar, Contabo offers dramatically better CPU efficiency.
+**Insight:** 
+- **Contabo has more consistent throughput** (3.3% variance vs 5.4%)
+- **OVH has perfectly consistent P95 latency** (2ms in all but one test)
+- Both show stable performance patterns across multiple test runs
 
-### 5.2 Throughput per Memory %
+---
+
+## 5. Resource Efficiency Analysis
+
+### 5.1 Memory Efficiency
 
 | Test | Contabo RPS/Mem% | OVH RPS/Mem% | Winner |
 |------|------------------|--------------|--------|
@@ -264,8 +270,6 @@ Lower is better - indicates faster event loop iterations
 | Local R1 | 49.6 | 48.2 | 🏆 Contabo (+2.9%) |
 | Local R2 | 50.0 | 45.8 | 🏆 Contabo (+9.2%) |
 | **Average** | **51.8** | **49.1** | **🏆 Contabo (+5.5%)** |
-
----
 
 ## 6. Use Case Recommendations
 
@@ -276,64 +280,66 @@ Lower is better - indicates faster event loop iterations
 - More consistent high throughput
 
 ✅ **Latency-sensitive applications**
+- Better performance under remote (EC2) testing
+
+✅ **Latency-sensitive applications**
 - 27% better P95 latency
 - 15% better P99 latency
+- Consistently 2ms P95 response time
 
 ✅ **You need predictable response times**
 - Perfectly consistent P95 latency (2ms)
 - Better event loop health (22% lower ELU)
+- Lower tail latency variance
 
 ✅ **AWS/EC2-based infrastructure**
 - 3.3% advantage in EC2 tests vs 0.9% in local tests
-- Better network connectivity to AWS
+- Better network connectivity to AWS regions
 
 **Ideal for:** Web applications, APIs, real-time services, user-facing applications where latency matters
 
 ### 6.2 Choose Contabo If:
 
-✅ **CPU efficiency is critical**
-- 92.8% lower CPU usage
-- 13.9x better throughput per CPU unit
-
-✅ **Budget-constrained projects**
-- If pricing is similar, you get much better CPU efficiency
-- Lower resource consumption = potentially lower costs at scale
-
-✅ **Higher concurrency requirements**
-- 12.5% higher safe concurrency
+✅ **Need higher concurrency capacity**
+- 6.7% higher safe concurrency levels
 - Can handle more simultaneous connections
+- Better for spike traffic scenarios
 
 ✅ **Consistent throughput patterns**
 - 3.3% variance vs 5.4% for OVH
-- More predictable performance
+- More predictable performance across tests
+- Better for capacity planning
 
-✅ **Memory efficiency matters**
+✅ **Slightly lower memory footprint**
 - 7.1% lower memory usage
+- May provide cost savings at extreme scale
 
-**Ideal for:** Background processing, batch jobs, microservices with consistent load, cost-optimized architectures
+✅ **Budget-constrained projects**
+- If pricing is lower, offers competitive performance
+- Only 2% behind in throughput
 
----
+**Ideal for:** High-concurrency applications, websocket server
 
 ## 7. Statistical Summary
 
 ### 7.1 Win/Loss Record by Category
 
 | Category | Contabo Wins | OVH Wins | Ties |
-|----------|--------------|----------|------|
-| **Throughput (RPS/RPM)** | 1 | 3 | 0 |
-| **CPU Efficiency** | 4 | 0 | 0 |
-| **Memory Efficiency** | 4 | 0 | 0 |
+|---Memory Efficiency** | 4 | 0 | 0 |
 | **Event Loop Health (ELU)** | 0 | 4 | 0 |
 | **Event Loop Lag** | 0 | 4 | 0 |
 | **Response Latency P95** | 0 | 3 | 1 |
 | **Response Latency P99** | 0 | 2 | 2 |
 | **Safe Concurrency** | 1 | 0 | 3 |
-| **Network Throughput** | - | - | - |
+| **Throughput Consistency** | 1 | 0 | 0 |
+| **Latency Consistency** | 0 | 1 | 0 |
 
 **Overall Score:** 
-- **Contabo:** 10 wins
-- **OVH:** 16 wins
+- **Contabo:** 7 wins
+- **OVH:** 17 wins
 - **Ties:** 6
+
+**Winner:** 🏆 **OVH** (70.8% win rate in decided categories
 
 **Winner:** 🏆 **OVH** (62.5% win rate)
 
@@ -343,14 +349,15 @@ Lower is better - indicates faster event loop iterations
 |--------|--------|-------------------|
 | Maximum RPS | OVH | +2.1% |
 | Maximum RPM | OVH | +2.1% |
-| CPU Usage | Contabo | -92.8% (uses less) |
 | Memory Usage | Contabo | -7.1% (uses less) |
 | Event Loop Utilization | OVH | -21.6% (healthier) |
 | Event Loop Lag P95 | OVH | -2.3% (faster) |
 | Response Latency P95 | OVH | -27.3% (faster) |
 | Response Latency P99 | OVH | -15.4% (faster) |
-| Safe Concurrency | Contabo | +12.5% (higher) |
-| Throughput per CPU% | Contabo | +1,293% (13.9x) |
+| Safe Concurrency | Contabo | +6.7% (higher) |
+| Throughput Consistency | Contabo | 38% lower variance |
+
+**Note:** CPU usage data excluded due to measurement timing issues (metrics captured after load tests completed).
 
 ---
 
@@ -364,25 +371,17 @@ Lower is better - indicates faster event loop iterations
 3. **Healthier event loop** (22% lower ELU)
 4. **More predictable response times** (consistent 2ms P95 latency)
 5. **Better for production workloads** where user experience matters
-
-### 8.2 When Contabo Makes Sense
-
-Despite OVH's overall win, **Contabo has exceptional CPU efficiency**:
-- Uses **13.9x less CPU** to deliver similar throughput
-- This is extraordinary and suggests superior architecture or optimization
-- For **cost-per-request** metrics, Contabo may be the winner
-- Ideal for **CPU-bound workloads** or **budget-constrained projects**
-
-### 8.3 Performance Gap Analysis
+Performance Gap Analysis
 
 | Perspective | Gap Size | Significance |
 |-------------|----------|--------------|
 | **Throughput** | 2.1% average | Small but measurable |
 | **Latency** | 27% P95, 15% P99 | **Significant** |
-| **CPU Efficiency** | 1,293% (13.9x) | **Extraordinary** |
 | **Event Loop Health** | 22% ELU difference | **Significant** |
 | **Memory** | 7.1% | Small |
+| **Concurrency** | 6.7% | Small |
 
+### 8.3
 ### 8.4 Price-Performance Consideration
 
 **If both cost the same:** OVH wins for production workloads  
@@ -392,13 +391,13 @@ Despite OVH's overall win, **Contabo has exceptional CPU efficiency**:
 - OVH has 27% better latency
 
 **Break-even analysis:** If Contabo is **more than 2% cheaper**, it may be the better value for throughput-focused workloads. If Contabo is **more than 27% cheaper**, it's competitive even for latency-sensitive apps.
+due to superior latency  
+**If Contabo is cheaper:** Calculate based on:
+- OVH delivers ~2% more throughput
+- OVH has 27% better latency
+- Contabo has 7% higher safe concurrency
 
----
-
-## 9. Testing Methodology Notes
-
-### 9.1 Test Configuration
-- **Tools:** wrk (HTTP benchmarking tool)
+**Break-even analysis:** If Contabo is **more than 2% cheaper** and your application isn't latency-sensitive, it may provide better value. For latency-critical applications, OVH's 27% latency advantage is worth paying a premium
 - **Duration:** 60 seconds per concurrency level
 - **Concurrency Levels:** 50, 100, 200, 400, 600, 800, 1000
 - **Auto-stop:** Tests stopped when ELU ≥ 0.9
@@ -462,10 +461,16 @@ The decision ultimately depends on:
 - **If throughput is priority:** Choose OVH (2-3% advantage)
 - **If budget is tight:** Calculate cost per 1000 requests for both
 
-For most **production web applications**, the **27% latency improvement alone justifies choosing OVH**, as user experience directly impacts business metrics. For **internal services** and **background processing**, Contabo's efficiency may provide better value.
+For most **productionclear winner** with superior throughput (+2.1%), dramatically better latency (27% faster P95, 15% faster P99), and healthier event loop metrics (22% lower ELU). 
 
----
+The decision ultimately depends on:
+- **If latency matters:** Choose OVH (27% better P95)
+- **If throughput is priority:** Choose OVH (2-3% advantage)
+- **If budget is tight and concurrency is critical:** Consider Contabo (6.7% higher safe concurrency, 7.1% lower memory)
+- **If consistency matters:** Choose Contabo (38% lower throughput variance)
 
-**Generated:** February 2, 2026  
-**Test Data:** 4 independent benchmark runs (2 EC2, 2 Local)  
-**Methodology:** Automated load testing with comprehensive metrics collection
+For most **production web applications**, the **27% latency improvement alone justifies choosing OVH**, as user experience directly impacts business metrics. For **high-concurrency internal services** where latency is less critical, Contabo may provide adequate performance at potentially lower cost.
+
+### Testing Limitations
+
+**Important Note:** CPU usage measurements in this analysis were found to be unreliable as metrics were captured after load tests completed, not during peak load. Both VPS systems showed ~100% CPU utilization during actual testing. Future tests should capture real-time CPU metrics during active load for accurate comparison
