@@ -67,68 +67,93 @@ printf "%-20s | %-15s | %-15s\n" "Total Memory (MB)" "$MEM1" "$MEM2"
 
 echo ""
 echo "======================================"
-echo " Performance Metrics"
+echo " Performance Metrics (Last Test Step)"
 echo "======================================"
 printf "%-25s | %-15s | %-15s | %-10s\n" "Metric" "VPS 1" "VPS 2" "Winner"
 echo "--------------------------------------------------------------------------------"
 
 # CPU Usage (lower is better for idle state)
-CPU_USAGE1=$(jq -r '.final_metrics.cpu.usagePercent' "$FILE1")
-CPU_USAGE2=$(jq -r '.final_metrics.cpu.usagePercent' "$FILE2")
+CPU_USAGE1=$(jq -r '.test_results[-1].metrics.cpu.usagePercent' "$FILE1")
+CPU_USAGE2=$(jq -r '.test_results[-1].metrics.cpu.usagePercent' "$FILE2")
 WINNER=$(awk "BEGIN {print ($CPU_USAGE1 < $CPU_USAGE2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "CPU Usage %" "$CPU_USAGE1" "$CPU_USAGE2" "$WINNER"
 
 # Memory Usage (lower is better)
-MEM_USAGE1=$(jq -r '.final_metrics.memory.usagePercent' "$FILE1")
-MEM_USAGE2=$(jq -r '.final_metrics.memory.usagePercent' "$FILE2")
+MEM_USAGE1=$(jq -r '.test_results[-1].metrics.memory.usagePercent' "$FILE1")
+MEM_USAGE2=$(jq -r '.test_results[-1].metrics.memory.usagePercent' "$FILE2")
 WINNER=$(awk "BEGIN {print ($MEM_USAGE1 < $MEM_USAGE2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Memory Usage %" "$MEM_USAGE1" "$MEM_USAGE2" "$WINNER"
 
 # Event Loop Utilization (lower is better)
-ELU1=$(jq -r '.final_metrics.eventLoop.elu.utilization' "$FILE1")
-ELU2=$(jq -r '.final_metrics.eventLoop.elu.utilization' "$FILE2")
+ELU1=$(jq -r '.test_results[-1].metrics.eventLoop.elu.utilization' "$FILE1")
+ELU2=$(jq -r '.test_results[-1].metrics.eventLoop.elu.utilization' "$FILE2")
 WINNER=$(awk "BEGIN {print ($ELU1 < $ELU2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "ELU" "$ELU1" "$ELU2" "$WINNER"
 
 # Event Loop Lag P95 (lower is better)
-LAG_P95_1=$(jq -r '.final_metrics.eventLoop.lag.p95Ms' "$FILE1")
-LAG_P95_2=$(jq -r '.final_metrics.eventLoop.lag.p95Ms' "$FILE2")
+LAG_P95_1=$(jq -r '.test_results[-1].metrics.eventLoop.lag.p95Ms' "$FILE1")
+LAG_P95_2=$(jq -r '.test_results[-1].metrics.eventLoop.lag.p95Ms' "$FILE2")
 WINNER=$(awk "BEGIN {print ($LAG_P95_1 < $LAG_P95_2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Event Loop Lag P95 (ms)" "$LAG_P95_1" "$LAG_P95_2" "$WINNER"
 
 # Latency P50 (lower is better)
-LAT_P50_1=$(jq -r '.final_metrics.latency.p50Ms' "$FILE1")
-LAT_P50_2=$(jq -r '.final_metrics.latency.p50Ms' "$FILE2")
+LAT_P50_1=$(jq -r '.test_results[-1].metrics.latency.p50Ms' "$FILE1")
+LAT_P50_2=$(jq -r '.test_results[-1].metrics.latency.p50Ms' "$FILE2")
 WINNER=$(awk "BEGIN {print ($LAT_P50_1 < $LAT_P50_2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Latency P50 (ms)" "$LAT_P50_1" "$LAT_P50_2" "$WINNER"
 
 # Latency P95 (lower is better)
-LAT_P95_1=$(jq -r '.final_metrics.latency.p95Ms' "$FILE1")
-LAT_P95_2=$(jq -r '.final_metrics.latency.p95Ms' "$FILE2")
+LAT_P95_1=$(jq -r '.test_results[-1].metrics.latency.p95Ms' "$FILE1")
+LAT_P95_2=$(jq -r '.test_results[-1].metrics.latency.p95Ms' "$FILE2")
 WINNER=$(awk "BEGIN {print ($LAT_P95_1 < $LAT_P95_2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Latency P95 (ms)" "$LAT_P95_1" "$LAT_P95_2" "$WINNER"
 
 # Latency P99 (lower is better)
-LAT_P99_1=$(jq -r '.final_metrics.latency.p99Ms' "$FILE1")
-LAT_P99_2=$(jq -r '.final_metrics.latency.p99Ms' "$FILE2")
+LAT_P99_1=$(jq -r '.test_results[-1].metrics.latency.p99Ms' "$FILE1")
+LAT_P99_2=$(jq -r '.test_results[-1].metrics.latency.p99Ms' "$FILE2")
 WINNER=$(awk "BEGIN {print ($LAT_P99_1 < $LAT_P99_2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Latency P99 (ms)" "$LAT_P99_1" "$LAT_P99_2" "$WINNER"
 
 # Total Requests in Window (higher is better)
-REQ1=$(jq -r '.final_metrics.latency.requests' "$FILE1")
-REQ2=$(jq -r '.final_metrics.latency.requests' "$FILE2")
+REQ1=$(jq -r '.test_results[-1].metrics.latency.requests' "$FILE1")
+REQ2=$(jq -r '.test_results[-1].metrics.latency.requests' "$FILE2")
 WINNER=$(awk "BEGIN {print ($REQ1 > $REQ2) ? \"VPS 1\" : \"VPS 2\"}")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Requests (10s window)" "$REQ1" "$REQ2" "$WINNER"
 
 # Network RX (if available)
-RX1=$(jq -r '.final_metrics.network.rxMbps // "N/A"' "$FILE1")
-RX2=$(jq -r '.final_metrics.network.rxMbps // "N/A"' "$FILE2")
+RX1=$(jq -r '.test_results[-1].metrics.network.rxMbps // "N/A"' "$FILE1")
+RX2=$(jq -r '.test_results[-1].metrics.network.rxMbps // "N/A"' "$FILE2")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Network RX (Mbps)" "$RX1" "$RX2" "-"
 
 # Network TX (if available)
-TX1=$(jq -r '.final_metrics.network.txMbps // "N/A"' "$FILE1")
-TX2=$(jq -r '.final_metrics.network.txMbps // "N/A"' "$FILE2")
+TX1=$(jq -r '.test_results[-1].metrics.network.txMbps // "N/A"' "$FILE1")
+TX2=$(jq -r '.test_results[-1].metrics.network.txMbps // "N/A"' "$FILE2")
 printf "%-25s | %-15s | %-15s | %-10s\n" "Network TX (Mbps)" "$TX1" "$TX2" "-"
+
+echo ""
+echo "======================================"
+echo " Summary (from captured data)"
+echo "======================================"
+printf "%-25s | %-15s | %-15s | %-10s\n" "Metric" "VPS 1" "VPS 2" "Winner"
+echo "--------------------------------------------------------------------------------"
+
+# Max RPS
+MAX_RPS1=$(jq -r '.summary.max_requests_per_sec' "$FILE1")
+MAX_RPS2=$(jq -r '.summary.max_requests_per_sec' "$FILE2")
+WINNER=$(awk "BEGIN {print ($MAX_RPS1 > $MAX_RPS2) ? \"VPS 1\" : \"VPS 2\"}")
+printf "%-25s | %-15s | %-15s | %-10s\n" "Max RPS" "$MAX_RPS1" "$MAX_RPS2" "$WINNER"
+
+# Max RPM
+MAX_RPM1=$(jq -r '.summary.max_requests_per_minute' "$FILE1")
+MAX_RPM2=$(jq -r '.summary.max_requests_per_minute' "$FILE2")
+WINNER=$(awk "BEGIN {print ($MAX_RPM1 > $MAX_RPM2) ? \"VPS 1\" : \"VPS 2\"}")
+printf "%-25s | %-15s | %-15s | %-10s\n" "Max RPM" "$MAX_RPM1" "$MAX_RPM2" "$WINNER"
+
+# Safe Concurrency
+SAFE_C1=$(jq -r '.summary.safe_concurrency_level' "$FILE1")
+SAFE_C2=$(jq -r '.summary.safe_concurrency_level' "$FILE2")
+WINNER=$(awk "BEGIN {print ($SAFE_C1 > $SAFE_C2) ? \"VPS 1\" : \"VPS 2\"}")
+printf "%-25s | %-15s | %-15s | %-10s\n" "Safe Concurrency" "$SAFE_C1" "$SAFE_C2" "$WINNER"
 
 echo ""
 echo "======================================"
