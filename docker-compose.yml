@@ -21,7 +21,3 @@ services:
     environment:
       - NODE_ENV=production
       - TZ=UTC
-
-    # Needed for /proc/net/dev access (network throughput)
-    volumes:
-      - /proc:/proc:ro
