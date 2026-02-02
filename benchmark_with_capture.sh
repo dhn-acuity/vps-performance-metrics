@@ -97,8 +97,13 @@ for c in "${CONCURRENCY[@]}"; do
     fi
   done
 
+  # Wait for wrk to finish completely
+  wait "$WRK_PID" 2>/dev/null || true
+  
+  echo "wrk completed, capturing metrics..." | tee -a "$LOG_FILE"
+
   # Capture final metrics for this step
-  FINAL_METRICS=$(curl -s "$VPS_URL/metrics")
+  FINAL_METRICS=$(curl -s "$VPS_URL/metrics" || echo '{}')
   
   # Parse wrk output - clean and sanitize values
   # Extract only the numeric value, avoid multi-line captures
