@@ -297,9 +297,22 @@ docker compose up -d --build
 Note: The [docker-compose.yml](docker-compose.yml) file includes:
 - **Main service** (`metrics`): The Hono.js performance metrics API
 - **Monitor service** (`monitor`): Continuously polls `/metrics` every 2 seconds and displays results
+- **Portainer** (`portainer`): Web UI for container management at `http://localhost:9000`
 - Automatic restart policy (`unless-stopped`)
 - Production environment variables
 - Optional resource limits (commented out by default)
+
+### Access Portainer UI
+
+After starting with `docker compose up -d`, access Portainer at:
+- **HTTP**: `http://localhost:9000`
+- **HTTPS**: `https://localhost:9443`
+
+First-time setup:
+1. Create admin password (on first visit)
+2. Select "Docker" environment
+3. Connect to local Docker instance
+4. View/manage all containers, logs, stats, and more
 
 ## Files
 
