@@ -65,23 +65,103 @@ AWS EC2 (load generator) ───HTTP───▶ VPS (metrics service)
 1. **Install dependencies**:
    ```bash
    sudo apt update
-   sudo apt install -y wrk jq curl
+   sudo apt install -y wrk jq curl bc
    ```
 
-2. **Copy the benchmark script** (`benchmark_auto_stop.sh`) to EC2
+2. **Copy the benchmark scripts** to EC2:
+   - `benchmark_auto_stop.sh` - Basic benchmark
+   - `benchmark_with_capture.sh` - Benchmark with automatic result capture
+   - `compare_results.sh` - Compare results between VPS systems
+   - `capture_results.sh` - Manual result capture
 
-3. **Edit the script** - Replace `VPS_PUBLIC_IP` with your actual VPS IP:
+3. **Run load test with automatic result capture**:
    ```bash
-   VPS_URL="http://YOUR_VPS_IP:3000"
+   chmod +x benchmark_with_capture.sh
+   ./benchmark_with_capture.sh <VPS_IP> <VPS_NAME>
+   
+   # Example:
+   ./benchmark_with_capture.sh 192.168.1.100 aws-t3-medium
    ```
 
-4. **Run the load test**:
-   ```bash
-   chmod +x benchmark_auto_stop.sh
-   ./benchmark_auto_stop.sh
-   ```
+4. The test will **automatically stop** when ELU ≥ 0.9 and save results to `./results/`
 
-5. The test will **automatically stop** when ELU ≥ 0.9
+## Performance Analysis & Comparison
+
+### Capture Results
+
+After running a load test, results are automatically saved to `./results/<VPS_NAME>_<TIMESTAMP>.json`
+
+**Manual capture** (if needed):
+```bash
+./capture_results.sh <vps_name> <test_description>
+# Example:
+./capture_results.sh "digitalocean-basic" "8GB-4vCPU-test"
+```
+
+### Compare Two VPS Systems
+
+```bash
+./compare_results.sh results/vps1_*.json results/vps2_*.json
+```
+
+**Example output:**
+```
+====================================
+ VPS Performance Comparison
+====================================
+
+VPS 1: aws-t3-medium (tested: 2026-02-02T10:30:00Z)
+VPS 2: digitalocean-basic (tested: 2026-02-02T11:45:00Z)
+
+====================================
+ System Specifications
+====================================
+Metric               | VPS 1           | VPS 2          
+--------------------------------------------------------------
+CPU Cores            | 2               | 4              
+Total Memory (MB)    | 4096            | 8192           
+
+====================================
+ Performance Metrics
+====================================
+Metric                    | VPS 1           | VPS 2           | Winner    
+--------------------------------------------------------------------------------
+CPU Usage %               | 45.2            | 38.7            | VPS 2     
+Memory Usage %            | 52.1            | 28.3            | VPS 2     
+ELU                       | 0.87            | 0.72            | VPS 2     
+Event Loop Lag P95 (ms)   | 198.4           | 124.5           | VPS 2     
+Latency P50 (ms)          | 17              | 12              | VPS 2     
+Latency P95 (ms)          | 143             | 89              | VPS 2     
+Latency P99 (ms)          | 311             | 187             | VPS 2     
+Requests (10s window)     | 8921            | 12450           | VPS 2     
+```
+
+### Analyze Single Result
+
+```bash
+# View full results
+cat results/vps_name_*.json | jq
+
+# View specific metrics
+cat results/vps_name_*.json | jq '.summary'
+cat results/vps_name_*.json | jq '.test_results[] | {concurrency, requests_per_sec}'
+
+# View system specs
+cat results/vps_name_*.json | jq '.system'
+```
+
+### Key Metrics Explained
+
+| Metric | What it means | Good Value |
+|--------|---------------|------------|
+| **Max RPS** | Maximum requests per second sustained | Higher is better |
+| **Max RPM** | Maximum requests per minute (RPS × 60) | Higher is better |
+| **Safe Concurrency** | Last stable concurrency level before overload | Your capacity limit |
+| **ELU** | Event Loop Utilization - how busy the event loop is | < 0.85 is healthy |
+| **Event Loop Lag P95** | 95th percentile event loop delay | < 100ms is good |
+| **Latency P50/P95/P99** | Response time percentiles | Lower is better |
+| **CPU Usage %** | CPU utilization during test | < 95% sustained |
+| **Memory Usage %** | RAM utilization | < 90% recommended |
 
 ## Endpoints
 
