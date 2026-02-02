@@ -103,17 +103,22 @@ for c in "${CONCURRENCY[@]}"; do
   # Parse wrk output - clean and sanitize values
   # Extract only the numeric value, avoid multi-line captures
   RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | head -1 | awk '{print $2}' | sed 's/[^0-9.]//g' || echo "0")
-  LAT_AVG=$(grep -A 0 "^  Latency" "$WRK_OUTPUT" | head -1 | awk '{print $2}' || echo "0ms")
-  LAT_P95=$(grep "99.000%" "$WRK_OUTPUT" | awk '{print $2}' || echo "0ms")
   
-  # If P95 not found, try alternative format
-  if [ "$LAT_P95" = "0ms" ]; then
-    LAT_P95=$(grep "95%" "$WRK_OUTPUT" | tail -1 | awk '{print $2}' || echo "0ms")
+  # Get latency line (not the Distribution line)
+  LAT_LINE=$(grep -E "^\s+Latency\s+" "$WRK_OUTPUT" | head -1)
+  LAT_AVG=$(echo "$LAT_LINE" | awk '{print $2}')
+  
+  # Get 95th percentile from latency distribution table
+  LAT_P95=$(grep -E "^\s+95\.000%" "$WRK_OUTPUT" | awk '{print $2}')
+  
+  # Fallback if format is different
+  if [ -z "$LAT_AVG" ] || [ "$LAT_AVG" = "Distribution" ]; then
+    LAT_AVG="0ms"
   fi
   
-  # Remove any trailing newlines and spaces
-  LAT_AVG=$(echo "$LAT_AVG" | tr -d '\r\n' | xargs)
-  LAT_P95=$(echo "$LAT_P95" | tr -d '\r\n' | xargs)
+  if [ -z "$LAT_P95" ]; then
+    LAT_P95="0ms"
+  fi
   
   echo "Results: RPS=$RPS, Latency Avg=$LAT_AVG, P95=$LAT_P95" | tee -a "$LOG_FILE"
 
