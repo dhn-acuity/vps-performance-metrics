@@ -189,6 +189,27 @@ docker build -t hono-metrics .
 docker run -p 3000:3000 -v /proc:/proc:ro hono-metrics
 ```
 
+### Run with Docker Compose:
+```bash
+# Build and start the service
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the service
+docker compose down
+
+# Rebuild and restart
+docker compose up -d --build
+```
+
+Note: The [docker-compose.yml](docker-compose.yml) file includes:
+- Automatic restart policy (`unless-stopped`)
+- `/proc` volume mount for network metrics (Linux only)
+- Optional resource limits (commented out by default)
+- Production environment variables
+
 ## Files
 
 - `index.ts` - Main application with all metrics logic
