@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  metrics:
+    container_name: hono-metrics
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hono-metrics:latest
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+    # Optional resource limits (COMMENT OUT for raw VPS testing)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1.0"
+    #       memory: 512M
+
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+
+    # Needed for /proc/net/dev access (network throughput)
+    volumes:
+      - /proc:/proc:ro

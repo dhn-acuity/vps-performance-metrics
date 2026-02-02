@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.gitignore
+*.log
+task.md
+README.md
+benchmark_auto_stop.sh
