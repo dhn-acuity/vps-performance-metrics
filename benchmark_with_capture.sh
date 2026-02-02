@@ -105,33 +105,50 @@ for c in "${CONCURRENCY[@]}"; do
   # Capture final metrics for this step
   FINAL_METRICS=$(curl -s "$VPS_URL/metrics" || echo '{}')
   
-  # Parse wrk output - clean and sanitize values
-  # Extract only the numeric value, avoid multi-line captures
-  RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | head -1 | awk '{print $2}' | sed 's/[^0-9.]//g' || echo "0")
+  echo "Parsing wrk output..." | tee -a "$LOG_FILE"
   
-  # Get latency line (not the Distribution line)
-  LAT_LINE=$(grep -E "^\s+Latency\s+" "$WRK_OUTPUT" | head -1)
-  LAT_AVG=$(echo "$LAT_LINE" | awk '{print $2}')
-  
-  # Get 95th percentile from latency distribution table
-  LAT_P95=$(grep -E "^\s+95\.000%" "$WRK_OUTPUT" | awk '{print $2}')
-  
-  # Fallback if format is different
-  if [ -z "$LAT_AVG" ] || [ "$LAT_AVG" = "Distribution" ]; then
+  # Debug: show wrk output file size
+  if [ -f "$WRK_OUTPUT" ]; then
+    WRK_SIZE=$(wc -c < "$WRK_OUTPUT")
+    echo "wrk output file size: $WRK_SIZE bytes" | tee -a "$LOG_FILE"
+  else
+    echo "ERROR: wrk output file not found!" | tee -a "$LOG_FILE"
+    RPS="0"
     LAT_AVG="0ms"
+    LAT_P95="0ms"
   fi
   
-  if [ -z "$LAT_P95" ]; then
-    LAT_P95="0ms"
+  # Parse wrk output - clean and sanitize values
+  # Extract only the numeric value, avoid multi-line captures
+  if [ -f "$WRK_OUTPUT" ]; then
+    RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" 2>/dev/null | head -1 | awk '{print $2}' | sed 's/[^0-9.]//g' || echo "0")
+    
+    # Get latency line (not the Distribution line)
+    LAT_LINE=$(grep -E "^\s+Latency\s+" "$WRK_OUTPUT" 2>/dev/null | head -1 || echo "")
+    LAT_AVG=$(echo "$LAT_LINE" | awk '{print $2}' || echo "0ms")
+    
+    # Get 95th percentile from latency distribution table
+    LAT_P95=$(grep -E "^\s+95\.000%" "$WRK_OUTPUT" 2>/dev/null | awk '{print $2}' || echo "0ms")
+    
+    # Fallback if format is different
+    if [ -z "$LAT_AVG" ] || [ "$LAT_AVG" = "Distribution" ]; then
+      LAT_AVG="0ms"
+    fi
+    
+    if [ -z "$LAT_P95" ]; then
+      LAT_P95="0ms"
+    fi
   fi
   
   echo "Results: RPS=$RPS, Latency Avg=$LAT_AVG, P95=$LAT_P95" | tee -a "$LOG_FILE"
 
   # Track max safe RPS
-  if (( $(echo "$RPS > $MAX_RPS" | bc -l) )); then
+  if (( $(echo "$RPS > $MAX_RPS" | bc -l 2>/dev/null || echo "0") )); then
     MAX_RPS="$RPS"
     SAFE_CONCURRENCY=$c
   fi
+
+  echo "Appending to JSON..." | tee -a "$LOG_FILE"
 
   # Append to results JSON
   if [ "$FIRST_STEP" = false ]; then
@@ -140,8 +157,8 @@ for c in "${CONCURRENCY[@]}"; do
   FIRST_STEP=false
 
   # Properly escape JSON string values and ensure metrics is valid JSON
-  LAT_AVG_ESCAPED=$(echo "$LAT_AVG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
-  LAT_P95_ESCAPED=$(echo "$LAT_P95" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+  LAT_AVG_ESCAPED=$(echo "$LAT_AVG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' || echo "0ms")
+  LAT_P95_ESCAPED=$(echo "$LAT_P95" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' || echo "0ms")
   
   # Validate and minify FINAL_METRICS JSON
   FINAL_METRICS_CLEAN=$(echo "$FINAL_METRICS" | jq -c . 2>/dev/null || echo '{}')
@@ -156,6 +173,8 @@ for c in "${CONCURRENCY[@]}"; do
       "metrics": $FINAL_METRICS_CLEAN
     }
 EOF
+
+  echo "Step complete!" | tee -a "$LOG_FILE"
 
   rm -f "$WRK_OUTPUT"
 
