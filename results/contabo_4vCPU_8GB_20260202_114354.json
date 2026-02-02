@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "vps_name": "contabo_4vCPU_8GB",
+    "vps_ip": "217.216.82.216",
+    "test_start": "2026-02-02T11:43:54Z",
+    "test_duration_per_step": "60s",
+    "threads": 4
+  },
+  "system": {
+    "cpu_cores": 4,
+    "total_memory_mb": 7941
+  },
+  "initial_metrics": {"cpu":{"cores":4,"usagePercent":0.27},"memory":{"totalMB":7941,"usedMB":744,"freeMB":7197,"usagePercent":9.37},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.49,"p95Ms":10.4},"elu":{"utilization":0.206,"activeMs":1065904,"idleMs":4096483},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":5,"p50Ms":1,"p95Ms":1,"p99Ms":1,"histogram":{"<=5ms":5,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10325},"timestamp":"2026-02-02T11:43:55.219Z"},
+  "test_results": [
+    {
+      "concurrency": 50,
+      "requests_per_sec": 133.97,
+      "wrk_latency_avg": "304.89ms",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.27},"memory":{"totalMB":7941,"usedMB":734,"freeMB":7207,"usagePercent":9.25},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.47,"p95Ms":10.41},"elu":{"utilization":0.206,"activeMs":1071517,"idleMs":4124359},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":539,"p50Ms":1,"p95Ms":1,"p99Ms":1,"histogram":{"<=5ms":539,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.01,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10392},"timestamp":"2026-02-02T11:45:02.796Z"}
+    }
+,
+    {
+      "concurrency": 100,
+      "requests_per_sec": 344.55,
+      "wrk_latency_avg": "267.70ms",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.27},"memory":{"totalMB":7941,"usedMB":734,"freeMB":7207,"usagePercent":9.24},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.46,"p95Ms":10.46},"elu":{"utilization":0.208,"activeMs":1092040,"idleMs":4146885},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":2975,"p50Ms":2,"p95Ms":2,"p99Ms":3,"histogram":{"<=5ms":2975,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.01,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10475},"timestamp":"2026-02-02T11:46:25.483Z"}
+    }
+,
+    {
+      "concurrency": 200,
+      "requests_per_sec": 469.31,
+      "wrk_latency_avg": "399.83ms",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.28},"memory":{"totalMB":7941,"usedMB":744,"freeMB":7197,"usagePercent":9.37},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.52,"p95Ms":10.48},"elu":{"utilization":0.213,"activeMs":1122451,"idleMs":4158081},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":3673,"p50Ms":2,"p95Ms":3,"p99Ms":3,"histogram":{"<=5ms":3673,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.01,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10558},"timestamp":"2026-02-02T11:47:48.124Z"}
+    }
+,
+    {
+      "concurrency": 400,
+      "requests_per_sec": 415.47,
+      "wrk_latency_avg": "732.98ms",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.28},"memory":{"totalMB":7941,"usedMB":734,"freeMB":7207,"usagePercent":9.24},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.57,"p95Ms":10.49},"elu":{"utilization":0.216,"activeMs":1148735,"idleMs":4171209},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":3083,"p50Ms":2,"p95Ms":3,"p99Ms":3,"histogram":{"<=5ms":3082,"<=10ms":1,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.03,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10642},"timestamp":"2026-02-02T11:49:12.288Z"}
+    }
+,
+    {
+      "concurrency": 600,
+      "requests_per_sec": 381.72,
+      "wrk_latency_avg": "1.06s",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.28},"memory":{"totalMB":7941,"usedMB":769,"freeMB":7173,"usagePercent":9.68},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.6,"p95Ms":10.49},"elu":{"utilization":0.219,"activeMs":1171746,"idleMs":4190096},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":3217,"p50Ms":2,"p95Ms":3,"p99Ms":3,"histogram":{"<=5ms":3217,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.09,"txMbps":0.1},"process":{"pid":1,"rssMB":212,"uptimeSec":10727},"timestamp":"2026-02-02T11:50:37.388Z"}
+    }
+,
+    {
+      "concurrency": 800,
+      "requests_per_sec": 415.73,
+      "wrk_latency_avg": "1.28s",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.29},"memory":{"totalMB":7941,"usedMB":755,"freeMB":7186,"usagePercent":9.51},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.65,"p95Ms":10.5},"elu":{"utilization":0.222,"activeMs":1199184,"idleMs":4204170},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":412,"p50Ms":1,"p95Ms":1,"p99Ms":1,"histogram":{"<=5ms":412,"<=10ms":0,"<=20ms":0,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.01,"txMbps":0.41},"process":{"pid":1,"rssMB":212,"uptimeSec":10812},"timestamp":"2026-02-02T11:52:01.981Z"}
+    }
+,
+    {
+      "concurrency": 1000,
+      "requests_per_sec": 195.08,
+      "wrk_latency_avg": "394.20ms",
+      "wrk_latency_p95": "0ms",
+      "stopped_early": false,
+      "metrics": {"cpu":{"cores":4,"usagePercent":0.29},"memory":{"totalMB":7941,"usedMB":746,"freeMB":7195,"usagePercent":9.39},"eventLoop":{"lag":{"minMs":3.25,"maxMs":1610.61,"meanMs":12.64,"p95Ms":10.51},"elu":{"utilization":0.222,"activeMs":1209121,"idleMs":4234038},"overloaded":false,"threshold":0.9},"latency":{"windowSeconds":10,"requests":3179,"p50Ms":2,"p95Ms":3,"p99Ms":4,"histogram":{"<=5ms":3164,"<=10ms":13,"<=20ms":2,"<=50ms":0,"<=100ms":0,"<=200ms":0,"<=500ms":0,"<=1000ms":0,">1000ms":0}},"network":{"rxMbps":0.01,"txMbps":0.01},"process":{"pid":1,"rssMB":212,"uptimeSec":10895},"timestamp":"2026-02-02T11:53:25.199Z"}
+    }
+
+  ],
+  "summary": {
+    "test_end": "2026-02-02T11:53:40Z",
+    "max_requests_per_sec": 469.31,
+    "max_requests_per_minute": 28158.60,
+    "safe_concurrency_level": 200,
+    "test_completed": true
+  }
+}

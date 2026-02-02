@@ -1,0 +1,50 @@
+./compare_results.sh results/contabo_4vCPU_8GB_20260202_111757.json ./results/ovh_4vCPU_8GB_20260202_113022.json
+======================================
+ VPS Performance Comparison
+======================================
+
+VPS 1: contabo_4vCPU_8GB (tested: null)
+VPS 2: ovh_4vCPU_8GB (tested: null)
+
+======================================
+ System Specifications
+======================================
+Metric               | VPS 1           | VPS 2
+--------------------------------------------------------------
+CPU Cores            | 4               | 4
+Total Memory (MB)    | 7941            | 7751
+
+======================================
+ Performance Metrics (Last Test Step)
+======================================
+Metric                    | VPS 1           | VPS 2           | Winner
+--------------------------------------------------------------------------------
+CPU Usage %               | 0.27            | 3.74            | VPS 1     
+Memory Usage %            | 9.38            | 10.13           | VPS 1     
+ELU                       | 0.229           | 0.171           | VPS 2     
+Event Loop Lag P95 (ms)   | 10.44           | 10.2            | VPS 2     
+Latency P50 (ms)          | 2               | 2               | VPS 2     
+Latency P95 (ms)          | 3               | 2               | VPS 2     
+Latency P99 (ms)          | 3               | 3               | VPS 2     
+Requests (10s window)     | 4383            | 4547            | VPS 2     
+Network RX (Mbps)         | 0.22            | 0.19            | -
+Network TX (Mbps)         | 3.62            | 0.13            | -
+
+======================================
+ Summary (from captured data)
+======================================
+Metric                    | VPS 1           | VPS 2           | Winner
+--------------------------------------------------------------------------------
+Max RPS                   | 501.39          | 515.99          | VPS 2     
+Max RPM                   | 30083.40        | 30959.40        | VPS 2     
+Safe Concurrency          | 400             | 400             | VPS 2     
+
+======================================
+ Summary
+======================================
+
+📊 Full JSON comparison:
+  diff <(jq . 'results/contabo_4vCPU_8GB_20260202_111757.json') <(jq . './results/ovh_4vCPU_8GB_20260202_113022.json')
+
+💡 Tip: Lower is better for CPU, Memory, ELU, and Latency metrics
+💡 Tip: Higher is better for Requests/sec throughput
