@@ -101,12 +101,19 @@ for c in "${CONCURRENCY[@]}"; do
   FINAL_METRICS=$(curl -s "$VPS_URL/metrics")
   
   # Parse wrk output - clean and sanitize values
-  RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | awk '{print $2}' | tr -d '\r\n' || echo "0")
-  LAT_AVG=$(grep "Latency" "$WRK_OUTPUT" | head -1 | awk '{print $2}' | tr -d '\r\n' || echo "0ms")
-  LAT_P95=$(grep "95%" "$WRK_OUTPUT" | tail -1 | awk '{print $2}' | tr -d '\r\n' || echo "0ms")
+  # Extract only the numeric value, avoid multi-line captures
+  RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | head -1 | awk '{print $2}' | sed 's/[^0-9.]//g' || echo "0")
+  LAT_AVG=$(grep -A 0 "^  Latency" "$WRK_OUTPUT" | head -1 | awk '{print $2}' || echo "0ms")
+  LAT_P95=$(grep "99.000%" "$WRK_OUTPUT" | awk '{print $2}' || echo "0ms")
   
-  # Remove any non-numeric/non-decimal characters except 'ms', 'us', 's'
-  RPS=$(echo "$RPS" | sed 's/[^0-9.]//g' || echo "0")
+  # If P95 not found, try alternative format
+  if [ "$LAT_P95" = "0ms" ]; then
+    LAT_P95=$(grep "95%" "$WRK_OUTPUT" | tail -1 | awk '{print $2}' || echo "0ms")
+  fi
+  
+  # Remove any trailing newlines and spaces
+  LAT_AVG=$(echo "$LAT_AVG" | tr -d '\r\n' | xargs)
+  LAT_P95=$(echo "$LAT_P95" | tr -d '\r\n' | xargs)
   
   echo "Results: RPS=$RPS, Latency Avg=$LAT_AVG, P95=$LAT_P95" | tee -a "$LOG_FILE"
 
