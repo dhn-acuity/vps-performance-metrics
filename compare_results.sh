@@ -22,6 +22,19 @@ if [ ! -f "$FILE2" ]; then
   exit 1
 fi
 
+# Validate JSON files
+if ! jq empty "$FILE1" 2>/dev/null; then
+  echo "Error: Invalid JSON in $FILE1"
+  echo "Try fixing with: jq -R -s '.' $FILE1 > ${FILE1}.fixed"
+  exit 1
+fi
+
+if ! jq empty "$FILE2" 2>/dev/null; then
+  echo "Error: Invalid JSON in $FILE2"
+  echo "Try fixing with: jq -R -s '.' $FILE2 > ${FILE2}.fixed"
+  exit 1
+fi
+
 echo "======================================"
 echo " VPS Performance Comparison"
 echo "======================================"

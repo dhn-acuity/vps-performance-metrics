@@ -100,11 +100,14 @@ for c in "${CONCURRENCY[@]}"; do
   # Capture final metrics for this step
   FINAL_METRICS=$(curl -s "$VPS_URL/metrics")
   
-  # Parse wrk output
-  RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | awk '{print $2}' || echo "0")
-  LAT_AVG=$(grep "Latency" "$WRK_OUTPUT" | awk '{print $2}' || echo "0")
-  LAT_P95=$(grep "95%" "$WRK_OUTPUT" | tail -1 | awk '{print $2}' || echo "0")
-
+  # Parse wrk output - clean and sanitize values
+  RPS=$(grep "Requests/sec:" "$WRK_OUTPUT" | awk '{print $2}' | tr -d '\r\n' || echo "0")
+  LAT_AVG=$(grep "Latency" "$WRK_OUTPUT" | head -1 | awk '{print $2}' | tr -d '\r\n' || echo "0ms")
+  LAT_P95=$(grep "95%" "$WRK_OUTPUT" | tail -1 | awk '{print $2}' | tr -d '\r\n' || echo "0ms")
+  
+  # Remove any non-numeric/non-decimal characters except 'ms', 'us', 's'
+  RPS=$(echo "$RPS" | sed 's/[^0-9.]//g' || echo "0")
+  
   echo "Results: RPS=$RPS, Latency Avg=$LAT_AVG, P95=$LAT_P95" | tee -a "$LOG_FILE"
 
   # Track max safe RPS
@@ -119,14 +122,21 @@ for c in "${CONCURRENCY[@]}"; do
   fi
   FIRST_STEP=false
 
+  # Properly escape JSON string values and ensure metrics is valid JSON
+  LAT_AVG_ESCAPED=$(echo "$LAT_AVG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+  LAT_P95_ESCAPED=$(echo "$LAT_P95" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+  
+  # Validate and minify FINAL_METRICS JSON
+  FINAL_METRICS_CLEAN=$(echo "$FINAL_METRICS" | jq -c . 2>/dev/null || echo '{}')
+
   cat >> "$OUTPUT_FILE" << EOF
     {
       "concurrency": $c,
       "requests_per_sec": $RPS,
-      "wrk_latency_avg": "$LAT_AVG",
-      "wrk_latency_p95": "$LAT_P95",
+      "wrk_latency_avg": "$LAT_AVG_ESCAPED",
+      "wrk_latency_p95": "$LAT_P95_ESCAPED",
       "stopped_early": $STOPPED_EARLY,
-      "metrics": $FINAL_METRICS
+      "metrics": $FINAL_METRICS_CLEAN
     }
 EOF
 
